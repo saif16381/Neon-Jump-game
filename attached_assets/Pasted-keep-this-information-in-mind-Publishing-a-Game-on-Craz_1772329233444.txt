@@ -1,0 +1,276 @@
+keep this information in mind." 🎮 Publishing a Game on CrazyGames — What You Must Know
+
+If you're planning to launch on CrazyGames, you’re entering a highly competitive browser-game ecosystem. Success depends on more than just coding — it’s about performance, retention, and monetization strategy.
+
+🕹 About CrazyGames
+4
+
+CrazyGames is a web-based gaming platform focused on:
+
+HTML5 browser games
+
+Instant play (no downloads)
+
+Mobile + desktop compatibility
+
+Ad-based monetization
+
+They prioritize:
+
+Fast-loading games
+
+High retention
+
+Strong engagement loops
+
+🔥 1. Game Type That Performs Well
+
+Top-performing genres on CrazyGames:
+
+Hyper-casual (simple, addictive mechanics)
+
+IO multiplayer games
+
+Idle / Incremental games
+
+Simulation games
+
+Physics-based puzzle games
+
+Driving & stunt games
+
+⚠ Important: Don’t build something overly complex like a heavy RPG. Browser players want instant fun in under 5 seconds.
+
+⚡ 2. Technical Requirements (VERY IMPORTANT)
+✅ Must Use:
+
+HTML5 (WebGL or Canvas)
+
+Unity (WebGL build)
+
+Phaser
+
+Three.js
+
+Godot (HTML5 export)
+
+⚡ Performance Rules:
+
+Under 20–30MB build size (smaller = better)
+
+Load time under 5 seconds
+
+60 FPS smooth gameplay
+
+Works on both mobile + desktop
+
+No bugs, no console errors
+
+CrazyGames rejects:
+
+Laggy games
+
+Slow-loading games
+
+Broken mobile controls
+
+Poor UI
+
+💰 3. Monetization System
+
+CrazyGames uses:
+
+Video ads (rewarded ads)
+
+Interstitial ads
+
+Banner ads
+
+Your job:
+
+Design game loop around ad breaks
+
+Use rewarded ads smartly (extra life, bonus coins, unlock skin)
+
+Never:
+
+Force too many ads
+
+Interrupt gameplay aggressively
+
+Retention > Ads.
+
+📊 4. Retention Is Everything
+
+They measure:
+
+Session length
+
+1-day retention
+
+7-day retention
+
+Engagement time
+
+To improve retention:
+
+Add progression system
+
+Add unlockable skins
+
+Add daily rewards
+
+Add achievements
+
+Add leaderboard
+
+Simple loop example:
+
+Play → Earn → Upgrade → Harder Level → Repeat
+🎯 5. Game Hook (First 10 Seconds Matter Most)
+
+Your first 10 seconds decide success.
+
+You need:
+
+Instant gameplay (no long menu)
+
+Clear objective
+
+Visual feedback
+
+Quick win moment
+
+If player doesn’t understand in 5 seconds → they leave.
+
+📱 6. Mobile Optimization Is Mandatory
+
+More than half traffic is mobile.
+
+Must have:
+
+Touch controls
+
+Responsive UI
+
+Large buttons
+
+No tiny text
+
+No hover-only interactions
+
+🧠 7. Data & Analytics
+
+Add:
+
+Level completion tracking
+
+Player drop-off tracking
+
+Ad interaction tracking
+
+Improve based on real behavior — not guessing.
+
+🚀 8. Submission Process
+
+Steps:
+
+Create developer account
+
+Upload WebGL/HTML5 build
+
+Add thumbnails + description
+
+Wait for review
+
+Improve if rejected
+
+Tip:
+Games get accepted faster if they are:
+
+Polished
+
+Unique twist on trending genre
+
+Technically clean
+
+💡 9. What Separates Successful Games?
+
+Successful games have:
+
+Simple core mechanic
+
+Deep progression
+
+High replay value
+
+Satisfying feedback (sounds, particles, juice effects)
+
+Add:
+
+Screen shake
+
+Smooth animations
+
+Combo effects
+
+Unlock system
+
+Juice makes average game feel premium.
+
+🏆 10. Real Strategy If You Want To Win
+
+Instead of building random game:
+
+Go to CrazyGames
+
+Check top 20 games
+
+Analyze:
+
+Genre
+
+Controls
+
+Progression
+
+Art style
+
+Improve one existing formula
+
+Don’t reinvent — improve.
+
+🎮 Example Winning Formula
+
+Core Idea:
+Simple driving stunt game.
+
+Add:
+
+Upgrades
+
+Skins
+
+Map unlock
+
+Daily reward
+
+Leaderboard
+
+Rewarded revive
+
+Simple game + deep retention = success.
+
+🛑 Biggest Mistakes Developers Make
+
+Overcomplicated mechanics
+
+Big file size
+
+No progression
+
+No mobile optimization
+
+Too many ads
+
+No tutorial"

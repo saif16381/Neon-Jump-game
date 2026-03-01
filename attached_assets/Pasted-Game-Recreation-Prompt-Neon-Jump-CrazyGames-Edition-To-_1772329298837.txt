@@ -1,0 +1,91 @@
+Game Recreation Prompt: Neon Jump (CrazyGames Edition)
+
+To recreate the Neon Jump game optimized for the CrazyGames platform, use the following detailed prompt. This prompt incorporates all the technical and strategic requirements from the provided documentation.
+
+🎮 Game Concept: Neon Jump
+
+Genre: Hyper-casual / Color-matching Platformer Core Mechanic: A high-speed, rhythm-based jumping game where the player navigates a neon ball through procedurally generated gaps in rotating or moving platforms.
+
+🚀 The "CrazyGames" Technical Requirements
+
+Engine: Build using HTML5 Canvas API (pure JavaScript/TypeScript) to ensure a build size under 5MB and load times under 2 seconds.
+
+Performance: Target a locked 60 FPS with optimized rendering loops. Use a single <canvas> element.
+
+Mobile First:
+
+Implement universal input: Mouse Click, Spacebar, and Touch (touchstart).
+
+Responsive UI: The canvas must automatically resize to fit any screen aspect ratio (Desktop/Mobile).
+
+Large, touch-friendly buttons for menus.
+
+Instant Play: No splash screens or long loading bars. Start the game loop immediately upon interaction.
+
+🕹 Game Loop & Progression
+
+Loop: Play ➔ Earn Coins ➔ Unlock Skins ➔ Increase Difficulty ➔ Repeat.
+
+Procedural Generation:
+
+Generate platforms with random gap heights (140px to 200px for Easy).
+
+Gradually increase speed as the score rises (Speed increase: +0.05 to +0.12 based on difficulty).
+
+Difficulty Levels:
+
+Easy: Large gaps, slow speed, floaty gravity.
+
+Medium: Standard speed, balanced physics.
+
+Hard: Tight gaps, fast speed, heavy gravity for quick reflexes.
+
+Monetization & Retention:
+
+Daily Rewards: Give +50 coins for daily logins.
+
+Rewarded Revive: Offer a "Watch Ad to Continue" (simulated) if the player dies with a score above 10.
+
+Skin Shop: 6+ unique neon skins (Blue, Pink, Green, Purple, Gold, Rainbow) costing 100–1000 coins.
+
+Coin Multiplier: Increase coin earnings every 10 points (x2, x3, etc.) to reward long sessions.
+
+✨ Juice & Visual Feedback (The "Hook")
+
+Neon Aesthetics: Use deep dark backgrounds (#0a0a12) with vibrant neon colors and shadowBlur effects for glow.
+
+Particles:
+
+Jump particles (burst at feet).
+
+Coin collection sparkles (gold/white).
+
+Explosion on death (color-matched to player skin).
+
+Screen Shake: Implement a subtle shake effect upon collision or high-score milestones.
+
+Floating Text: Show +1, +50, or NEW HIGH SCORE! text that floats and fades.
+
+Smooth Motion: Use a trail system for the player ball to emphasize speed.
+
+🛠 Functional Specifications for Developer
+
+State Management: Handle menu, playing, gameover, skins, and revive states.
+
+Persistence: Use localStorage to save High Scores, Coin Balance, and Unlocked Skins.
+
+UI Components: Use a transparent overlay for the HUD (Score, High Score, Coins) so it doesn't distract from gameplay.
+
+Collision Detection: Use circular hitbox for the player and rectangular hitboxes for platforms with a 2px "mercy" padding.
+
+🎨 Visual Style Palette
+
+Background: #0a0a12
+
+Neon Blue: #00ffff
+
+Hot Pink: #ff0066
+
+Acid Green: #00ff66
+
+Gold: #ffcc00
