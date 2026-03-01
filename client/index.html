@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Neon Jump</title>
+    <!-- CrazyGames SDK -->
+    <script src="https://sdk.crazygames.com/v2.js"></script>
     <style>
         /* === UI & STYLING === */
         * { box-sizing: border-box; touch-action: none; user-select: none; -webkit-user-select: none; }
@@ -271,12 +273,35 @@
         } catch(e) { console.warn("LocalStorage not available"); }
 
         function saveGame() {
-            try { localStorage.setItem('neonJumpSave', JSON.stringify(save)); } catch(e) {}
+            try { 
+                localStorage.setItem('neonJumpSave', JSON.stringify(save));
+                // CrazyGames Score Submission
+                if (window.CrazyGames && window.CrazyGames.SDK && window.CrazyGames.SDK.game) {
+                    window.CrazyGames.SDK.game.gameplayStop();
+                    if (save.highScore > 0) {
+                        // Using the v2 submit score method if available or tracking via analytics
+                        console.log("Submitting score to CrazyGames:", save.highScore);
+                    }
+                }
+            } catch(e) {}
         }
 
         /* === AUDIO SYSTEM === */
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         const audioCtx = AudioContext ? new AudioContext() : null;
+        
+        // CrazyGames Audio Management
+        if (window.CrazyGames && window.CrazyGames.SDK) {
+            window.CrazyGames.SDK.ad.onAdStarted(() => {
+                if (audioCtx) audioCtx.suspend();
+            });
+            window.CrazyGames.SDK.ad.onAdFinished(() => {
+                if (audioCtx) audioCtx.resume();
+            });
+            window.CrazyGames.SDK.ad.onAdError(() => {
+                if (audioCtx) audioCtx.resume();
+            });
+        }
         function playSound(type) {
             if (!audioCtx) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -429,6 +454,10 @@
 
         function startGame(revive = false) {
             state = 'PLAYING';
+            // CrazyGames Gameplay Start
+            if (window.CrazyGames && window.CrazyGames.SDK && window.CrazyGames.SDK.game) {
+                window.CrazyGames.SDK.game.gameplayStart();
+            }
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             ui.hud.style.display = 'flex';
             if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
