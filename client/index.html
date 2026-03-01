@@ -212,7 +212,8 @@
         const colors = {
             bg: '#05050a', platform: '#0f0f1a', platformBorder: '#1a1a2e',
             neonBlue: '#00ffff', hotPink: '#ff0066', acidGreen: '#00ff66',
-            gold: '#ffcc00', purple: '#cc00ff', white: '#ffffff', rainbow: 'rainbow'
+            gold: '#ffcc00', purple: '#cc00ff', white: '#ffffff', rainbow: 'rainbow',
+            shield: '#0099ff', slow: '#00ffcc'
         };
 
         const skins = [
@@ -225,7 +226,7 @@
         ];
 
         /* === DATA PERSISTENCE === */
-        let save = { highScore: 0, coins: 0, skins: ['blue'], currentSkin: 'blue', lastLogin: 0 };
+        let save = { highScore: 0, coins: 0, skins: ['blue'], currentSkin: 'blue', lastLogin: 0, level: 1, xp: 0 };
         try {
             const loaded = localStorage.getItem('neonJumpSave');
             if (loaded) save = { ...save, ...JSON.parse(loaded) };
@@ -275,6 +276,13 @@
                 gain.gain.setValueAtTime(0.1, time);
                 gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
                 osc.start(time); osc.stop(time + 0.2);
+            } else if (type === 'powerup') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, time);
+                osc.frequency.exponentialRampToValueAtTime(1000, time + 0.3);
+                gain.gain.setValueAtTime(0.15, time);
+                gain.gain.exponentialRampToValueAtTime(0.01, time + 0.3);
+                osc.start(time); osc.stop(time + 0.3);
             }
         }
 
@@ -290,10 +298,14 @@
         let lastTime = performance.now();
         let canRevive = false;
 
-        let player = { x: 0, y: 0, vy: 0, radius: 15, gravity: 0.65, jumpForce: -9.5, trail: [] };
+        let player = { 
+            x: 0, y: 0, vy: 0, radius: 15, gravity: 0.65, jumpForce: -9.5, trail: [],
+            shield: 0, slow: 0
+        };
         let platforms = [];
         let particles = [];
         let coins = [];
+        let powerups = [];
 
         /* === INIT & RESIZE === */
         function resize() {
@@ -366,6 +378,15 @@
                     radius: 12, collected: false, type: Math.random() > 0.9 ? 'super' : 'normal'
                 });
             }
+
+            // Powerups
+            if (Math.random() > 0.92) {
+                const type = Math.random() > 0.5 ? 'shield' : 'slow';
+                powerups.push({
+                    x: width + 40, y: topHeight + gapSize / 2 + (Math.random() - 0.5) * 40,
+                    radius: 18, collected: false, type: type
+                });
+            }
         }
 
         function startGame(revive = false) {
@@ -376,23 +397,44 @@
             
             if (!revive) {
                 score = 0; speedMult = 1; combo = 0; comboTimer = 0;
-                platforms = []; coins = []; particles = [];
+                platforms = []; coins = []; particles = []; powerups = [];
                 initPlayer(); canRevive = true;
+                player.shield = 0; player.slow = 0;
                 generatePlatform();
             } else {
                 player.vy = player.jumpForce;
                 player.y = Math.max(100, Math.min(height - 100, player.y));
                 platforms = platforms.filter(p => p.x > player.x + 300);
                 coins = coins.filter(c => c.x > player.x + 300);
+                powerups = [];
+                player.shield = 3000; // 3s invincibility on revive
             }
             updateHUD();
         }
 
         function gameOver() {
+            if (player.shield > 0) {
+                player.shield = 0;
+                screenShake = 15;
+                playSound('death');
+                addParticle(player.x, player.y, colors.shield, 30);
+                // Clear platforms around player
+                platforms = platforms.filter(p => Math.abs(p.x - player.x) > 200);
+                return;
+            }
             state = 'GAMEOVER';
             playSound('death');
             screenShake = 30;
             addParticle(player.x, player.y, getSkinColor(), 80, 3);
+            
+            // XP and Leveling
+            const earnedXp = score * 5 + combo * 10;
+            save.xp += earnedXp;
+            while (save.xp >= save.level * 1000) {
+                save.xp -= save.level * 1000;
+                save.level++;
+                showFloatingText(`LEVEL UP: ${save.level}!`, width/2, height/2, colors.gold);
+            }
             
             if (score > save.highScore) {
                 save.highScore = score;
@@ -452,7 +494,7 @@
             ui.hud.style.display = 'none';
             ui.comboText.classList.remove('active');
             initPlayer();
-            platforms = []; coins = [];
+            platforms = []; coins = []; powerups = [];
         }
 
         function renderShop() {
@@ -525,9 +567,16 @@
                 updateParticles();
                 return;
             }
+
+            // Powerup Timers
+            if (player.shield > 0) player.shield -= dt;
+            if (player.slow > 0) player.slow -= dt;
             
             // Difficulty curve
-            speedMult = 1 + (score * 0.01);
+            let targetSpeedMult = 1 + (score * 0.01);
+            if (player.slow > 0) targetSpeedMult *= 0.5;
+            speedMult = targetSpeedMult;
+
             const currentSpeed = baseSpeed * speedMult * (dt / 16.66);
             
             // Physics
@@ -590,16 +639,12 @@
                     const dy = player.y - c.y;
                     if (Math.sqrt(dx*dx + dy*dy) < player.radius + c.radius) {
                         c.collected = true;
-                        
-                        // Combo logic
                         combo++;
-                        comboTimer = 2000; // 2 seconds to keep combo
-                        
+                        comboTimer = 2000;
                         const val = c.type === 'super' ? 10 : 1;
                         const earned = val * (combo > 1 ? combo : 1);
                         save.coins += earned;
                         saveGame();
-                        
                         playSound('coin');
                         if (combo > 1) {
                             playSound('combo');
@@ -607,13 +652,35 @@
                             ui.comboText.classList.add('active');
                             screenShake = 10;
                         }
-                        
                         addParticle(c.x, c.y, c.type === 'super' ? colors.acidGreen : colors.gold, 20);
                         showFloatingText(`+${earned}`, player.x, player.y - 40, colors.gold);
                         updateHUD();
                     }
                 }
                 if (c.x < -20 || c.collected) coins.splice(i, 1);
+            }
+
+            // Powerups
+            for (let i=powerups.length-1; i>=0; i--) {
+                let p = powerups[i];
+                p.x -= currentSpeed;
+                if (!p.collected) {
+                    const dx = player.x - p.x;
+                    const dy = player.y - p.y;
+                    if (Math.sqrt(dx*dx + dy*dy) < player.radius + p.radius) {
+                        p.collected = true;
+                        playSound('powerup');
+                        if (p.type === 'shield') {
+                            player.shield = 8000; // 8 seconds
+                            showFloatingText('SHIELD ACTIVE!', player.x, player.y - 50, colors.shield);
+                        } else if (p.type === 'slow') {
+                            player.slow = 5000; // 5 seconds
+                            showFloatingText('TIME SLOW!', player.x, player.y - 50, colors.slow);
+                        }
+                        addParticle(p.x, p.y, p.type === 'shield' ? colors.shield : colors.slow, 25);
+                    }
+                }
+                if (p.x < -50 || p.collected) powerups.splice(i, 1);
             }
             
             // Bounds
@@ -674,15 +741,11 @@
                 ctx.strokeStyle = colors.platformBorder;
                 ctx.lineWidth = 3;
                 
-                // Top
                 ctx.fillRect(p.x, 0, p.w, p.top);
                 ctx.strokeRect(p.x, 0, p.w, p.top);
-                
-                // Bottom
                 ctx.fillRect(p.x, p.bottom, p.w, height - p.bottom);
                 ctx.strokeRect(p.x, p.bottom, p.w, height - p.bottom);
 
-                // Neon Edges
                 ctx.shadowBlur = 20; ctx.shadowColor = colors.hotPink;
                 ctx.fillStyle = colors.hotPink;
                 ctx.fillRect(p.x, p.top-6, p.w, 6);
@@ -698,6 +761,17 @@
                 ctx.shadowBlur = 20; ctx.shadowColor = cCol; ctx.fill();
                 ctx.shadowBlur = 0;
                 ctx.fillStyle = '#fff'; ctx.font = 'bold 14px Arial'; ctx.fillText('$', c.x, c.y + 1);
+            });
+
+            // Powerups
+            powerups.forEach(p => {
+                const pCol = p.type === 'shield' ? colors.shield : colors.slow;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.radius + Math.cos(frameCount*0.1)*3, 0, Math.PI * 2);
+                ctx.strokeStyle = pCol; ctx.lineWidth = 3; ctx.stroke();
+                ctx.shadowBlur = 15; ctx.shadowColor = pCol;
+                ctx.fillStyle = pCol; ctx.globalAlpha = 0.3; ctx.fill();
+                ctx.globalAlpha = 1.0; ctx.shadowBlur = 0;
+                ctx.fillStyle = '#fff'; ctx.font = 'bold 14px Arial'; ctx.fillText(p.type === 'shield' ? 'S' : 'T', p.x, p.y + 1);
             });
             
             // Particles
@@ -728,6 +802,19 @@
                     ctx.stroke();
                     ctx.shadowBlur = 0; ctx.globalAlpha = 1.0;
                 }
+
+                // Powerup Visual Effects
+                if (player.shield > 0) {
+                    ctx.beginPath(); ctx.arc(player.x, player.y, player.radius + 10 + Math.sin(frameCount*0.2)*2, 0, Math.PI*2);
+                    ctx.strokeStyle = colors.shield; ctx.lineWidth = 3; ctx.stroke();
+                    ctx.shadowBlur = 15; ctx.shadowColor = colors.shield;
+                    if (player.shield < 2000 && Math.floor(frameCount/10) % 2 === 0) ctx.globalAlpha = 0.2;
+                }
+                if (player.slow > 0) {
+                    ctx.beginPath(); ctx.arc(player.x, player.y, player.radius + 5, 0, Math.PI*2);
+                    ctx.strokeStyle = colors.slow; ctx.lineWidth = 2; ctx.stroke();
+                }
+                ctx.globalAlpha = 1.0;
                 
                 // Player Ball
                 ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
